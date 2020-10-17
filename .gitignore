@@ -1,0 +1,10 @@
+.DS_Store
+.zero
+zero-builds
+node_modules
+package.json
+yarn.lock
+.babelrc
+
+tronos.db
+config.js
