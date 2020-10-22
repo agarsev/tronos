@@ -1,8 +1,8 @@
 import express from 'express';
 import morgan from 'morgan';
+import config from 'config';
 
 import { nueva_partida, lista_partidas } from './api.js';
-import config from './config.js';
 
 const app = express();
 
@@ -23,7 +23,7 @@ app.get('/api/partidas', async (_, res) => {
 });
 
 app.post('/api/nueva', async (req, res) => {
-    if (req.body.password != config.password) {
+    if (req.body.password != config.get('password')) {
         throw { status: 403, error: "Contraseña incorrecta" };
     }
     res.send(await nueva_partida(req.body));
@@ -40,6 +40,6 @@ app.use(function (err, req, res, next) {
     }
 });
 
-app.listen(config.port, () => {
+app.listen(config.get('port'), () => {
     console.log(`Clasificación de tronos iniciada en http://localhost:${3000}`);
 });

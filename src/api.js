@@ -1,11 +1,11 @@
 import Datastore from 'nedb';
 import moment from 'moment';
+import config from 'config';
 
 import { CASAS } from './comun.js';
-import config from './config.js';
 
 const db = new Datastore({
-    filename: config.db,
+    filename: config.get('db'),
     autoload: true,
 });
 
