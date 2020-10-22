@@ -1,6 +1,11 @@
-import { Helmet } from 'react-helmet-async';
-import './estilo.scss';
-import { CASAS } from './lib/comun';
+import { h, render } from 'preact';
+
+import { CASAS } from './comun.js';
+
+fetch("api/partidas").then(r => r.json())
+    .then(procesar_partidas)
+    .then(datos => render(<App datos={datos} />, document.body))
+    .catch(e => console.log(e));
 
 function procesar_partidas(partidas) {
 
@@ -40,29 +45,14 @@ function procesar_partidas(partidas) {
     };
 }
 
-export default class extends React.Component {
-
-    static async getInitialProps() {
-        const { partidas } = await fetch("/api/partidas")
-            .then(r => r.json());
-        return { partidas };
-    }
-
-    render () {
-        let datos = procesar_partidas(this.props.partidas);
-        return <>
-            <Helmet>
-                <meta charset="utf-8" />
-                <title>@GS - Tronos v2</title>
-                <link rel="canonical" href="https://garciasevilla.com/tronos" />
-            </Helmet>
-            <h1>Clasificación de partidas de Tronos</h1>
-            <p>In the game of thrones, you win or you die.</p>
-            <ListaPartidas {...datos} />
-            <h2>Victorias</h2>
-            <Estadisticas {...datos} />
-        </>
-    }
+function App ({ datos }) {
+    return <div>
+        <h1>Clasificación de partidas de Tronos</h1>
+        <p>In the game of thrones, you win or you die.</p>
+        <ListaPartidas {...datos} />
+        <h2>Victorias</h2>
+        <Estadisticas {...datos} />
+    </div>
 }
 
 function ListaPartidas ({ partidas, jugadores }) {

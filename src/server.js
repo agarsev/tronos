@@ -1,6 +1,7 @@
 import express from 'express';
 import morgan from 'morgan';
 import config from 'config';
+import Bundler from 'parcel-bundler';
 
 import { nueva_partida, lista_partidas } from './api.js';
 
@@ -28,6 +29,15 @@ app.post('/api/nueva', async (req, res) => {
     }
     res.send(await nueva_partida(req.body));
 });
+
+// Front-end
+app.use('/img', express.static('img'));
+
+const bundler = new Bundler('src/index.html', {
+    autoInstall: false,
+    logLevel: 0,
+});
+app.use(bundler.middleware());
 
 // Error handler
 app.use(function (err, req, res, next) {

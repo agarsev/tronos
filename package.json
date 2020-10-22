@@ -14,8 +14,11 @@
   "dependencies": {
     "config": "^3.3.2",
     "express": "^5.0.0-alpha.8",
+    "less": "^3.12.2",
     "moment": "^2.29.1",
     "morgan": "^1.10.0",
-    "nedb": "^1.8.0"
+    "nedb": "^1.8.0",
+    "parcel-bundler": "^1.12.4",
+    "preact": "^10.5.5"
   }
 }
