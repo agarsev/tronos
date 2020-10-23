@@ -40,7 +40,6 @@ function calcular_victorias(partidas, jugadores) {
 
 export function Estadisticas ({ partidas, jugadores }) {
     const { victorias, num_partidas } = calcular_victorias(partidas, jugadores);
-    console.log(victorias, jugadores);
 
     return <table className="Estadisticas">
         <thead><tr>

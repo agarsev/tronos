@@ -25,18 +25,23 @@ function App ({ partidas, jugadores }) {
         jugadores.forEach(j => { j_act[j] = true });
         return j_act;
     });
+    const [ solo_esos, setSolo ] = useState(false);
 
     const ps = partidas.filter(p => Object.keys(p.jugadores)
-        .map(j => jugadores_act[j]).reduce((a, b) => a || b));
+        .map(j => jugadores_act[j])
+        .reduce((a, b) => solo_esos?a&&b:a||b));
     const js = encontrar_jugadores(ps);
 
     return <div>
         <h1>Clasificación de partidas de Tronos</h1>
         <p>In the game of thrones, you win or you die.</p>
         <table className="ListaPartidas">
-            <CabeceroLista jugadores={js} jugadores_act={jugadores_act}
-                toggle={j => setJACT(j_act => ({ ...j_act, [j]: !j_act[j] }))}
+            <CabeceroLista jugadores={js}>
+                <Filtros jugadores={jugadores} jugadores_act={jugadores_act}
+                    toggle_j={j => setJACT(j_act => ({ ...j_act, [j]: !j_act[j] }))}
+                    solo={solo_esos} toggle_solo={() => setSolo(s => !s)}
                 />
+            </CabeceroLista>
             <ListaPartidas partidas={ps} jugadores={js} />
         </table>
         <h2>Victorias</h2>
@@ -45,14 +50,30 @@ function App ({ partidas, jugadores }) {
     </div>;
 }
 
-function CabeceroLista ({ jugadores, jugadores_act, toggle }) {
+function CabeceroLista ({ jugadores, children }) {
+
+    const [ desplegado, setDesplegado ] = useState(false);
+
     return <thead><tr>
-        {jugadores.map(j => <th key={j}>
-            {j}
-            <input type="checkbox" checked={jugadores_act[j]}
-                onclick={() => toggle(j)} />
-        </th>)}
+        {jugadores.map(j => <th>{j}</th>)}
+        <td style="position: relative;">
+            <button onclick={() => setDesplegado(d => !d)}>{desplegado?'^':'v'}</button>
+            {desplegado?children:null}
+        </td>
     </tr></thead>;
+}
+
+function Filtros ({ jugadores, jugadores_act, toggle_j, solo, toggle_solo }) {
+    return <div class="Filtros" style="position: absolute;">
+        <div>
+            <b>Jugadores</b>
+            <input type="checkbox" checked={solo} onclick={toggle_solo} /> sólo
+        </div>
+        {jugadores.map(j => <div>
+            <input type="checkbox" checked={jugadores_act[j]}
+                onclick={() => toggle_j(j)} />{j}
+        </div>)}
+    </div>;
 }
 
 function ListaPartidas ({ partidas, jugadores }) {
