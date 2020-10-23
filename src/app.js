@@ -1,71 +1,69 @@
 import { h, render } from 'preact';
+import { useState } from 'preact/hooks';
 
-import { CASAS } from './comun.js';
+import { Estadisticas } from './estadisticas.js';
 
 fetch("api/partidas").then(r => r.json())
-    .then(procesar_partidas)
-    .then(datos => render(<App datos={datos} />, document.body))
+    .then(partidas => ({ partidas,
+        jugadores: encontrar_jugadores(partidas),
+    }))
+    .then(datos => render(<App {...datos} />, document.body))
     .catch(e => console.log(e));
 
-function procesar_partidas(partidas) {
-
-    let jugadores = [],
-        victorias = {},
-        num_partidas = {};
-
-    CASAS.forEach(c => {
-        victorias[c] = 0;
-        num_partidas[c] = 0;
-    });
-
+function encontrar_jugadores (partidas) {
+    const js = new Set();
     partidas.forEach(p => {
-        Object.keys(p.jugadores).forEach(j => {
-            const casa = p.jugadores[j];
-            if (!jugadores.includes(j)) {
-                jugadores.push(j);
-                victorias[j] = { total: 0 };
-                num_partidas[j] = { total: 0 };
-                CASAS.forEach(c => {
-                    victorias[j][c] = 0;
-                    num_partidas[j][c] = 0;
-                }); 
-            }
-            num_partidas[j][casa] += 1;
-            num_partidas[casa] += 1;
-            num_partidas[j].total += 1;
-        });
-        victorias[p.gana.jugador][p.gana.casa] += 1;
-        victorias[p.gana.jugador].total += 1;
-        victorias[p.gana.casa] += 1;
+        Object.keys(p.jugadores).forEach(j => js.add(j));
     });
-
-    return {
-        partidas, victorias, num_partidas,
-        jugadores: jugadores.sort()
-    };
+    return [...js.values()].sort();
 }
 
-function App ({ datos }) {
+function App ({ partidas, jugadores }) {
+
+    const [ jugadores_act, setJACT ] = useState(() => {
+        const j_act = {};
+        jugadores.forEach(j => { j_act[j] = true });
+        return j_act;
+    });
+
+    const ps = partidas.filter(p => Object.keys(p.jugadores)
+        .map(j => jugadores_act[j]).reduce((a, b) => a || b));
+    const js = encontrar_jugadores(ps);
+
     return <div>
         <h1>Clasificación de partidas de Tronos</h1>
         <p>In the game of thrones, you win or you die.</p>
-        <ListaPartidas {...datos} />
+        <table className="ListaPartidas">
+            <CabeceroLista jugadores={js} jugadores_act={jugadores_act}
+                toggle={j => setJACT(j_act => ({ ...j_act, [j]: !j_act[j] }))}
+                />
+            <ListaPartidas partidas={ps} jugadores={js} />
+        </table>
         <h2>Victorias</h2>
-        <Estadisticas {...datos} />
-    </div>
+        <Estadisticas partidas={ps}
+            jugadores={jugadores.filter(j => jugadores_act[j])} />
+    </div>;
+}
+
+function CabeceroLista ({ jugadores, jugadores_act, toggle }) {
+    return <thead><tr>
+        {jugadores.map(j => <th key={j}>
+            {j}
+            <input type="checkbox" checked={jugadores_act[j]}
+                onclick={() => toggle(j)} />
+        </th>)}
+    </tr></thead>;
 }
 
 function ListaPartidas ({ partidas, jugadores }) {
-    return <table className="ListaPartidas">
-        <thead><tr>
-            {jugadores.map(j => <th key={j}>{j}</th>)}
-        </tr></thead>
-        <tbody>
-            {partidas.map(p => <tr key={p._id}>
-                {jugadores.map(j => <Jugador key={j} partida={p} jugador={j} />)}
-            </tr>)}
-        </tbody>
-    </table>;
+    return <tbody>
+        {partidas.map(p => <tr key={p._id}>
+            {jugadores.map(j => p.jugadores[j]?
+                <Jugador key={j} partida={p} jugador={j} />
+                :<td></td>
+            )}
+        </tr>)}
+    </tbody>;
 }
 
 function Jugador ({ partida, jugador }) {
@@ -80,26 +78,4 @@ function Jugador ({ partida, jugador }) {
             backgroundImage: `url('img/${casa}.jpg')`
             }} />
     </td>;
-}
-
-function Estadisticas ({ jugadores, victorias, num_partidas }) {
-    return <table className="Estadisticas">
-        <thead><tr>
-            <th>casa</th>
-            {jugadores.map(j => <th key={j}>{j}</th>)}
-            <th>total</th>
-        </tr></thead>
-        <tbody>
-            {CASAS.map(c => <tr key={c}>
-                <th>{c}</th>
-                {jugadores.map(j => <td key={j}>{victorias[j][c]}/{num_partidas[j][c]}</td>)}
-                <td>{victorias[c]}/{num_partidas[c]}</td>
-            </tr>)}
-        </tbody>
-        <tfoot><tr>
-            <th>total</th>
-            {jugadores.map(j => <td key={j}>{victorias[j].total}/{num_partidas[j].total}</td>)}
-            <th></th>
-        </tr></tfoot>
-    </table>;
 }
