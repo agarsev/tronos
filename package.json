@@ -8,6 +8,9 @@
     "type": "git",
     "url": "git+https://github.com/agarsev/tronos.git"
   },
+  "scripts": {
+    "start": "node src/server.js"
+  },
   "author": "Antonio F. G. Sevilla <antonio@garciasevilla.com>",
   "license": "AGPL-3.0-or-later",
   "homepage": "https://garciasevilla.com/tronos",

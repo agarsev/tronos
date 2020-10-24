@@ -20,16 +20,19 @@ function encontrar_jugadores (partidas) {
 
 function App ({ partidas, jugadores }) {
 
+    // Jugadores que TIENEN que estar
     const [ jugadores_act, setJACT ] = useState(() => {
         const j_act = {};
-        jugadores.forEach(j => { j_act[j] = true });
+        jugadores.forEach(j => { j_act[j] = false });
         return j_act;
     });
-    const [ solo_esos, setSolo ] = useState(false);
+    const [ num_js, setNJS ] = useState({ 3: true, 4: true, 5: true, 6: true });
 
-    const ps = partidas.filter(p => Object.keys(p.jugadores)
-        .map(j => jugadores_act[j])
-        .reduce((a, b) => solo_esos?a&&b:a||b));
+    let ps = partidas
+        .filter(p => jugadores
+            .map(j => !jugadores_act[j] || p.jugadores[j])
+            .reduce((a, b) => a&&b))
+        .filter(p => num_js[p.num_js]);
     const js = encontrar_jugadores(ps);
 
     return <div>
@@ -37,16 +40,16 @@ function App ({ partidas, jugadores }) {
         <p>In the game of thrones, you win or you die.</p>
         <table className="ListaPartidas">
             <CabeceroLista jugadores={js}>
-                <Filtros jugadores={jugadores} jugadores_act={jugadores_act}
+                <Filtros jugadores={jugadores}
+                    jugadores_act={jugadores_act} num_js={num_js}
                     toggle_j={j => setJACT(j_act => ({ ...j_act, [j]: !j_act[j] }))}
-                    solo={solo_esos} toggle_solo={() => setSolo(s => !s)}
+                    toggle_n={n => setNJS(njs => ({ ...njs, [n]: !njs[n] }))}
                 />
             </CabeceroLista>
             <ListaPartidas partidas={ps} jugadores={js} />
         </table>
         <h2>Victorias</h2>
-        <Estadisticas partidas={ps}
-            jugadores={jugadores.filter(j => jugadores_act[j])} />
+        <Estadisticas partidas={ps} jugadores={js} />
     </div>;
 }
 
@@ -63,16 +66,21 @@ function CabeceroLista ({ jugadores, children }) {
     </tr></thead>;
 }
 
-function Filtros ({ jugadores, jugadores_act, toggle_j, solo, toggle_solo }) {
+function Filtros ({ jugadores, jugadores_act, toggle_j, num_js, toggle_n }) {
     return <div class="Filtros" style="position: absolute;">
         <div>
             <b>Jugadores</b>
-            <input type="checkbox" checked={solo} onclick={toggle_solo} /> sólo
         </div>
         {jugadores.map(j => <div>
             <input type="checkbox" checked={jugadores_act[j]}
                 onclick={() => toggle_j(j)} />{j}
         </div>)}
+        <div><b>Número</b></div>
+        <div>{[3,4,5,6].map(n => <span>
+            <input type="checkbox" checked={num_js[n]}
+                onclick={() => toggle_n(n)} />
+            {n}</span>)}
+        </div>
     </div>;
 }
 
