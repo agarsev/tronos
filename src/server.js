@@ -3,7 +3,7 @@ import morgan from 'morgan';
 import config from 'config';
 import Bundler from 'parcel-bundler';
 
-import { nueva_partida, lista_partidas } from './api.js';
+import { nueva_partida, lista_partidas, generar_partida } from './api.js';
 
 const app = express();
 
@@ -28,6 +28,10 @@ app.post('/api/nueva', async (req, res) => {
         throw { status: 403, error: "Contraseña incorrecta" };
     }
     res.send(await nueva_partida(req.body));
+});
+
+app.post('/api/generar', async (req, res) => {
+    res.send(await generar_partida(req.body.jugadores));
 });
 
 // Front-end
