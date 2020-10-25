@@ -56,6 +56,15 @@ function App ({ partidas, jugadores }) {
 
     const js = encontrar_jugadores(ps);
 
+    const [ generada, setGenerada ] = useState(null);
+    const generar = () => fetch("api/generar", {
+        method: 'POST', body: JSON.stringify({
+            jugadores: jugadores.filter(j => jugadores_act[j])
+        }), headers: { 'Content-Type': 'application/json' }
+    }).then(r => r.json())
+        .then(setGenerada)
+        .catch(e => console.log(e));
+
     return <div>
         <h1>Clasificación de partidas de Tronos</h1>
         <p>In the game of thrones, you win or you die.</p>
@@ -66,12 +75,15 @@ function App ({ partidas, jugadores }) {
                     toggle_j={j => setJACT(j_act => ({ ...j_act, [j]: !j_act[j] }))}
                     toggle_n={n => setNJS(njs => ({ ...njs, [n]: !njs[n] }))}
                     toggle_clasicas={() => setClasicas(c => !c)}
+                    generar={generar}
                 />
             </CabeceroLista>
             <ListaPartidas partidas={ps} jugadores={js} />
         </table>
         <h2>Victorias</h2>
         <Estadisticas partidas={ps} jugadores={js} />
+        {generada?<Generada generada={generada}
+            dismiss={() => setGenerada(null)} />:null}
     </div>;
 }
 
@@ -100,7 +112,10 @@ function BotonOrden ({ orden, setOrden, modo }) {
 }
 
 function Filtros ({ jugadores, jugadores_act, toggle_j, num_js, toggle_n,
-        clasicas, toggle_clasicas }) {
+        clasicas, toggle_clasicas, generar }) {
+
+    const num_checked = jugadores.reduce((sum, j) => sum+(jugadores_act[j]?1:0), 0);
+
     return <div class="Filtros" style="position: absolute;">
         <div><input type="checkbox" checked={clasicas} onclick={toggle_clasicas} />
             Clásicas
@@ -117,6 +132,9 @@ function Filtros ({ jugadores, jugadores_act, toggle_j, num_js, toggle_n,
                 onclick={() => toggle_n(n)} />
             {n}</span>)}
         </div>
+        <div>{num_checked>2 && num_checked<7?
+            <button onclick={generar}>Generar</button>
+        :null}</div>
     </div>;
 }
 
@@ -144,4 +162,19 @@ function Jugador ({ partida, jugador }) {
             backgroundImage: `url('img/${casa}.jpg')`
             }} />
     </td>;
+}
+
+function Generada ({ generada, dismiss }) {
+    const js = Object.keys(generada).sort();
+    return <div class="PartidaGenerada" onclick={dismiss}>
+        <div onclick={e => e.stopPropagation()}>
+            <table><thead><tr>
+                {js.map(j => <th>{j}</th>)}
+            </tr></thead>
+            <tbody><tr>
+                {js.map(j => <Jugador partida={{ jugadores: generada, gana: {} }} jugador={j} />)}
+            </tr></tbody></table>
+            <button onclick={dismiss}>OK</button>
+        </div>
+    </div>;
 }
