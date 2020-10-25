@@ -33,8 +33,9 @@ function App ({ partidas, jugadores }) {
         .filter(p => jugadores
             .map(j => !jugadores_act[j] || p.jugadores[j])
             .reduce((a, b) => a&&b))
-        .filter(p => num_js[p.num_js])
-        .filter(p => p.clasica && clasicas || !p.clasica);
+        .filter(p => num_js[p.num_js]);
+    if (!clasicas) ps = ps.filter(p => !p.clasica);
+
     const js = encontrar_jugadores(ps);
 
     return <div>
@@ -61,6 +62,7 @@ function CabeceroLista ({ jugadores, children }) {
     const [ desplegado, setDesplegado ] = useState(false);
 
     return <thead><tr>
+        <td></td>
         {jugadores.map(j => <th>{j}</th>)}
         <td style="position: relative;">
             <button onclick={() => setDesplegado(d => !d)}>{desplegado?'^':'v'}</button>
@@ -93,6 +95,7 @@ function Filtros ({ jugadores, jugadores_act, toggle_j, num_js, toggle_n,
 function ListaPartidas ({ partidas, jugadores }) {
     return <tbody>
         {partidas.map(p => <tr key={p._id}>
+            <td>{p.clasica?null:p.fecha}</td>
             {jugadores.map(j => p.jugadores[j]?
                 <Jugador key={j} partida={p} jugador={j} />
                 :<td></td>

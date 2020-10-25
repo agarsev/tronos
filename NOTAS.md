@@ -1,7 +1,6 @@
 # TODO
 
 - Ordenar partidas por jugador.
-- Mostrar fecha en la tabla.
 - Generador de partida que use los filtros.
 - Mejorar estilo
 - Versión móvil

@@ -19,15 +19,28 @@ function nedb (method, data) {
 }
 
 export function lista_partidas () {
-    return nedb('find', {});
+    return nedb('find', {})
+        .then(partidas => partidas.sort((a, b) => {
+            if (a.clasica && b.clasica) return a.fecha - b.fecha;
+            if (a.clasica && !b.clasica) return -1;
+            if (!a.clasica && b.clasica) return 1;
+            return a.fecha.localeCompare(b);
+        }));
 }
 
 const OTRAS_CLAVES = [ 'password', 'gana', 'fecha', 'clasica' ];
 
 export function nueva_partida (enviada) {
 
+    const fecha = moment(enviada.fecha);
+    if (!fecha.isValid()) {
+        throw { status: 400,
+            error: `Fecha no reconocida (usa YYYY-MM-DD): "${enviada.fecha}"`
+        }
+    }
+
     let partida = {
-        fecha: enviada.fecha || moment().format("YYYY-MM-DD"),
+        fecha: fecha.format("YYYY-MM-DD"),
         casas: {},
         jugadores: {},
         clasica: enviada.clasica || false,
