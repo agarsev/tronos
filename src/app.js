@@ -18,6 +18,15 @@ function encontrar_jugadores (partidas) {
     return [...js.values()].sort();
 }
 
+function ordenar_partidas (partidas, modo) {
+    switch (modo) {
+        case 'fecha_asc': return partidas;
+        case 'fecha_desc':
+        default:
+            return partidas.reverse();
+    }
+}
+
 function App ({ partidas, jugadores }) {
 
     // Jugadores que TIENEN que estar
@@ -28,6 +37,7 @@ function App ({ partidas, jugadores }) {
     });
     const [ num_js, setNJS ] = useState({ 3: true, 4: true, 5: true, 6: true });
     const [ clasicas, setClasicas ] = useState(false);
+    const [ orden, setOrden ] = useState('fecha_desc');
 
     let ps = partidas
         .filter(p => jugadores
@@ -35,6 +45,7 @@ function App ({ partidas, jugadores }) {
             .reduce((a, b) => a&&b))
         .filter(p => num_js[p.num_js]);
     if (!clasicas) ps = ps.filter(p => !p.clasica);
+    ps = ordenar_partidas(ps, orden);
 
     const js = encontrar_jugadores(ps);
 
@@ -42,7 +53,7 @@ function App ({ partidas, jugadores }) {
         <h1>Clasificación de partidas de Tronos</h1>
         <p>In the game of thrones, you win or you die.</p>
         <table className="ListaPartidas">
-            <CabeceroLista jugadores={js}>
+            <CabeceroLista jugadores={js} orden={orden} setOrden={setOrden} >
                 <Filtros jugadores={jugadores}
                     jugadores_act={jugadores_act} num_js={num_js} clasicas={clasicas}
                     toggle_j={j => setJACT(j_act => ({ ...j_act, [j]: !j_act[j] }))}
@@ -57,18 +68,28 @@ function App ({ partidas, jugadores }) {
     </div>;
 }
 
-function CabeceroLista ({ jugadores, children }) {
+function CabeceroLista ({ jugadores, orden, setOrden, children }) {
 
     const [ desplegado, setDesplegado ] = useState(false);
 
     return <thead><tr>
-        <td></td>
+        <td><TriOrden orden={orden} setOrden={setOrden} modo="fecha" /></td>
         {jugadores.map(j => <th>{j}</th>)}
         <td style="position: relative;">
             <button onclick={() => setDesplegado(d => !d)}>{desplegado?'^':'v'}</button>
             {desplegado?children:null}
         </td>
     </tr></thead>;
+}
+
+function TriOrden ({ orden, setOrden, modo }) {
+    const desc = `${modo}_desc`, asc = `${modo}_asc`;
+    let icono = '', nuevo = desc;
+    switch (orden) {
+        case desc: icono = '^'; nuevo = asc; break;
+        case asc: icono = 'v'; nuevo = ''; break;
+    }
+    return <button onclick={() => setOrden(nuevo)}>{icono}</button>;
 }
 
 function Filtros ({ jugadores, jugadores_act, toggle_j, num_js, toggle_n,
