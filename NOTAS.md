@@ -1,6 +1,5 @@
 # TODO
 
-- Ordenar partidas por jugador.
 - Generador de partida que use los filtros.
 - Mejorar estilo
 - Versión móvil

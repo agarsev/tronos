@@ -1,10 +1,11 @@
 import { h, render } from 'preact';
 import { useState } from 'preact/hooks';
 
+import { CASAS } from './comun.js';
 import { Estadisticas } from './estadisticas.js';
 
 fetch("api/partidas").then(r => r.json())
-    .then(partidas => ({ partidas,
+    .then(partidas => ({ partidas: partidas.reverse(),
         jugadores: encontrar_jugadores(partidas),
     }))
     .then(datos => render(<App {...datos} />, document.body))
@@ -19,12 +20,18 @@ function encontrar_jugadores (partidas) {
 }
 
 function ordenar_partidas (partidas, modo) {
-    switch (modo) {
-        case 'fecha_asc': return partidas;
-        case 'fecha_desc':
-        default:
-            return partidas.reverse();
-    }
+    if (modo == 'default') return partidas;
+    if (modo == 'fecha') return partidas.reverse();
+    return partidas.sort((a, b) => {
+        const casa_a = a.jugadores[modo],
+              casa_b = b.jugadores[modo],
+              gana_a = a.gana.jugador == modo,
+              gana_b = b.gana.jugador == modo;
+        if (!casa_a) return casa_b?1:0;
+        if (!casa_b) return -1;
+        if (casa_a == casa_b) return gana_a?-1:(gana_b?1:0);
+        return CASAS.indexOf(casa_a) - CASAS.indexOf(casa_b);
+    });
 }
 
 function App ({ partidas, jugadores }) {
@@ -37,7 +44,7 @@ function App ({ partidas, jugadores }) {
     });
     const [ num_js, setNJS ] = useState({ 3: true, 4: true, 5: true, 6: true });
     const [ clasicas, setClasicas ] = useState(false);
-    const [ orden, setOrden ] = useState('fecha_desc');
+    const [ orden, setOrden ] = useState('default');
 
     let ps = partidas
         .filter(p => jugadores
@@ -73,8 +80,10 @@ function CabeceroLista ({ jugadores, orden, setOrden, children }) {
     const [ desplegado, setDesplegado ] = useState(false);
 
     return <thead><tr>
-        <td><TriOrden orden={orden} setOrden={setOrden} modo="fecha" /></td>
-        {jugadores.map(j => <th>{j}</th>)}
+        <td><BotonOrden orden={orden} setOrden={setOrden} modo="fecha" /></td>
+        {jugadores.map(j => <th>{j}
+            <BotonOrden orden={orden} setOrden={setOrden} modo={j} />
+        </th>)}
         <td style="position: relative;">
             <button onclick={() => setDesplegado(d => !d)}>{desplegado?'^':'v'}</button>
             {desplegado?children:null}
@@ -82,14 +91,12 @@ function CabeceroLista ({ jugadores, orden, setOrden, children }) {
     </tr></thead>;
 }
 
-function TriOrden ({ orden, setOrden, modo }) {
-    const desc = `${modo}_desc`, asc = `${modo}_asc`;
-    let icono = '', nuevo = desc;
-    switch (orden) {
-        case desc: icono = '^'; nuevo = asc; break;
-        case asc: icono = 'v'; nuevo = ''; break;
+function BotonOrden ({ orden, setOrden, modo }) {
+    if (orden == modo) {
+        return <button onclick={() => setOrden('default')}>v</button>;
+    } else {
+        return <button onclick={() => setOrden(modo)}></button>;
     }
-    return <button onclick={() => setOrden(nuevo)}>{icono}</button>;
 }
 
 function Filtros ({ jugadores, jugadores_act, toggle_j, num_js, toggle_n,
