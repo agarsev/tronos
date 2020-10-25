@@ -2,7 +2,6 @@
 
 - Ordenar partidas por jugador.
 - Mostrar fecha en la tabla.
-- Importar partidas viejas, por defecto no mostrar, añadir opción filtro.
 - Generador de partida que use los filtros.
 - Mejorar estilo
 - Versión móvil

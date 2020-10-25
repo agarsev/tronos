@@ -22,7 +22,7 @@ export function lista_partidas () {
     return nedb('find', {});
 }
 
-const OTRAS_CLAVES = [ 'password', 'gana' ];
+const OTRAS_CLAVES = [ 'password', 'gana', 'fecha', 'clasica' ];
 
 export function nueva_partida (enviada) {
 
@@ -30,17 +30,19 @@ export function nueva_partida (enviada) {
         fecha: enviada.fecha || moment().format("YYYY-MM-DD"),
         casas: {},
         jugadores: {},
+        clasica: enviada.clasica || false,
     };
 
     Object.keys(enviada).forEach(k => {
         const v = enviada[k];
+        if (OTRAS_CLAVES.includes(k)) return;
         if (CASAS.includes(k)) {
             partida.casas[k] = v;
             partida.jugadores[v] = k;
         } else if (CASAS.includes(v)) {
             partida.casas[v] = k;
             partida.jugadores[k] = v;
-        } else if (!OTRAS_CLAVES.includes(k)) {
+        } else {
            throw { status: 400, error: `Clave no reconocida: "${k}: ${v}"` };
         }
     });

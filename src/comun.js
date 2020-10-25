@@ -1,8 +1,8 @@
 export const CASAS = [
+    "stark",
+    "lannister",
     "baratheon",
     "greyjoy",
-    "lannister",
-    "martell",
     "tyrell",
-    "stark"
+    "martell",
 ];

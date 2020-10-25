@@ -27,12 +27,14 @@ function App ({ partidas, jugadores }) {
         return j_act;
     });
     const [ num_js, setNJS ] = useState({ 3: true, 4: true, 5: true, 6: true });
+    const [ clasicas, setClasicas ] = useState(false);
 
     let ps = partidas
         .filter(p => jugadores
             .map(j => !jugadores_act[j] || p.jugadores[j])
             .reduce((a, b) => a&&b))
-        .filter(p => num_js[p.num_js]);
+        .filter(p => num_js[p.num_js])
+        .filter(p => p.clasica && clasicas || !p.clasica);
     const js = encontrar_jugadores(ps);
 
     return <div>
@@ -41,9 +43,10 @@ function App ({ partidas, jugadores }) {
         <table className="ListaPartidas">
             <CabeceroLista jugadores={js}>
                 <Filtros jugadores={jugadores}
-                    jugadores_act={jugadores_act} num_js={num_js}
+                    jugadores_act={jugadores_act} num_js={num_js} clasicas={clasicas}
                     toggle_j={j => setJACT(j_act => ({ ...j_act, [j]: !j_act[j] }))}
                     toggle_n={n => setNJS(njs => ({ ...njs, [n]: !njs[n] }))}
+                    toggle_clasicas={() => setClasicas(c => !c)}
                 />
             </CabeceroLista>
             <ListaPartidas partidas={ps} jugadores={js} />
@@ -66,9 +69,12 @@ function CabeceroLista ({ jugadores, children }) {
     </tr></thead>;
 }
 
-function Filtros ({ jugadores, jugadores_act, toggle_j, num_js, toggle_n }) {
+function Filtros ({ jugadores, jugadores_act, toggle_j, num_js, toggle_n,
+        clasicas, toggle_clasicas }) {
     return <div class="Filtros" style="position: absolute;">
-        <div>
+        <div><input type="checkbox" checked={clasicas} onclick={toggle_clasicas} />
+            Clásicas
+        </div><div>
             <b>Jugadores</b>
         </div>
         {jugadores.map(j => <div>
