@@ -2,4 +2,9 @@
     db: 'tronos.db',
     port: 3000,
     password: 'password',
+    frases: [
+        "In the game of thrones, you win or you die",
+        "The night is dark and full of horrors",
+        "Hodor",
+    ]
 }

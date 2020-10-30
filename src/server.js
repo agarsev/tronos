@@ -7,6 +7,8 @@ import { nueva_partida, lista_partidas, generar_partida } from './api.js';
 
 const app = express();
 
+const frases = config.get('frases');
+
 // Logging
 morgan.token('SYSTEMD', (req, res) => {
     if (res.statusCode < 300) return '<6>';
@@ -20,7 +22,10 @@ app.use(morgan(':SYSTEMD :remote-addr ":method :url" :status :response-time ms')
 app.use(express.json());
 
 app.get('/api/partidas', async (_, res) => {
-    res.send(await lista_partidas());
+    res.send({
+        frase: frases[Math.floor(Math.random()*frases.length)],
+        partidas: await lista_partidas()
+    });
 });
 
 app.post('/api/nueva', async (req, res) => {

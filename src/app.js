@@ -5,8 +5,9 @@ import { CASAS } from './comun.js';
 import { Estadisticas } from './estadisticas.js';
 
 fetch("api/partidas").then(r => r.json())
-    .then(partidas => ({ partidas: partidas.reverse(),
+    .then(({ partidas, frase }) => ({ partidas: partidas.reverse(),
         jugadores: encontrar_jugadores(partidas),
+        frase,
     }))
     .then(datos => render(<App {...datos} />, document.body))
     .catch(e => console.log(e));
@@ -34,7 +35,7 @@ function ordenar_partidas (partidas, modo) {
     });
 }
 
-function App ({ partidas, jugadores }) {
+function App ({ partidas, jugadores, frase }) {
 
     // Jugadores que TIENEN que estar
     const [ jugadores_act, setJACT ] = useState(() => {
@@ -74,7 +75,7 @@ function App ({ partidas, jugadores }) {
 
     return <main>
         <h1>Clasificación de partidas de Tronos</h1>
-        <p>In the game of thrones, you win or you die.</p>
+        <p>{frase}</p>
         <div class="ListaWrapper">
             <div class="ListaPartidas"><table>
                 <CabeceroLista jugadores={js} orden={orden} setOrden={setOrden}
