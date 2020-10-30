@@ -68,7 +68,7 @@ function App ({ partidas, jugadores }) {
     return <div>
         <h1>Clasificación de partidas de Tronos</h1>
         <p>In the game of thrones, you win or you die.</p>
-        <table className="ListaPartidas">
+        <div className="ListaPartidas"><table>
             <CabeceroLista jugadores={js} orden={orden} setOrden={setOrden} >
                 <Filtros jugadores={jugadores}
                     jugadores_act={jugadores_act} num_js={num_js} clasicas={clasicas}
@@ -79,7 +79,7 @@ function App ({ partidas, jugadores }) {
                 />
             </CabeceroLista>
             <ListaPartidas partidas={ps} jugadores={js} />
-        </table>
+        </table></div>
         <h2>Victorias</h2>
         <Estadisticas partidas={ps} jugadores={js} />
         {generada?<Generada generada={generada}
@@ -97,18 +97,18 @@ function CabeceroLista ({ jugadores, orden, setOrden, children }) {
             <BotonOrden orden={orden} setOrden={setOrden} modo={j} />
         </th>)}
         <td style="position: relative;">
-            <button onclick={() => setDesplegado(d => !d)}>{desplegado?'^':'v'}</button>
+            <button class="BotonDesplegar" onclick={() => setDesplegado(d => !d)}>
+                {desplegado?'▼':'+'}
+            </button>
             {desplegado?children:null}
         </td>
     </tr></thead>;
 }
 
 function BotonOrden ({ orden, setOrden, modo }) {
-    if (orden == modo) {
-        return <button onclick={() => setOrden('default')}>v</button>;
-    } else {
-        return <button onclick={() => setOrden(modo)}></button>;
-    }
+    const activo = orden == modo;
+    const onclick = () => setOrden(activo?'default':modo);
+    return <button class="BotonOrden" onclick={onclick}>{activo?'▼':'━'}</button>;
 }
 
 function Filtros ({ jugadores, jugadores_act, toggle_j, num_js, toggle_n,
@@ -116,7 +116,7 @@ function Filtros ({ jugadores, jugadores_act, toggle_j, num_js, toggle_n,
 
     const num_checked = jugadores.reduce((sum, j) => sum+(jugadores_act[j]?1:0), 0);
 
-    return <div class="Filtros" style="position: absolute;">
+    return <div class="Filtros">
         <div><input type="checkbox" checked={clasicas} onclick={toggle_clasicas} />
             Clásicas
         </div><div>
@@ -124,7 +124,7 @@ function Filtros ({ jugadores, jugadores_act, toggle_j, num_js, toggle_n,
         </div>
         {jugadores.map(j => <div>
             <input type="checkbox" checked={jugadores_act[j]}
-                onclick={() => toggle_j(j)} />{j}
+                onclick={() => toggle_j(j)} /><span>{j}</span>
         </div>)}
         <div><b>Número</b></div>
         <div>{[3,4,5,6].map(n => <span>
@@ -157,8 +157,8 @@ function Jugador ({ partida, jugador }) {
         estilo.backgroundImage = "url('img/corona.png')";
     }
 
-    return <td style={estilo} >
-        <span className="IconoCasa" style={{
+    return <td class="IconoCasa" style={estilo} >
+        <span style={{
             backgroundImage: `url('img/${casa}.jpg')`
             }} />
     </td>;

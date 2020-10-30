@@ -1,37 +1,68 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    padding: 0 3vw;
+}
+
+h1, h2, p {
+    margin: 1.0em 0 0.6em 0;
+}
+
 table {
-    border-collapse: collapse;
+    margin: 1.6em 0;
+    border-spacing: 0;
     tfoot th, tfoot td { border-top: 1px solid black; }
     thead th { border-bottom: 1px solid black; }
     th:first-letter { text-transform: uppercase; }
+    td { padding: 0.1ex; }
+    text-align: center;
 }
 
-
-.ListaPartidas,
-.PartidaGenerada {
-    td {
-        padding: 1px 10px;
-        text-align: center;
-        vertical-align: middle;
-        background: no-repeat top center;
+.ListaPartidas {
+    max-height: 50vh;
+    min-height: 400px;
+    overflow-y: auto;
+    td:first-child {
+        font-size: 80%;
+    }
+    thead tr {
+        background: white;
+        position: sticky;
+        top: 0;
     }
 }
 
 .IconoCasa {
-    border: 1px solid #08281E;
-    display: inline-block;
-    padding: 0px;
-    margin: auto;
-    margin-top: auto;
-    margin-top: 20px;
-    width: 50px;
-    height: 50px;
+    vertical-align: middle;
+    background: no-repeat top center;
+    span {
+        border: 1px solid #08281E;
+        display: inline-block;
+        margin: auto;
+        margin-top: auto;
+        margin-top: 20px;
+        width: 50px;
+        height: 50px;
+    }
 }
 
 .Filtros {
+    position: absolute;
     padding: 1ex;
     border: 1px solid black;
     text-align: left;
-    div { white-space: nowrap; }
+    div {
+        white-space: nowrap;
+        margin: 0.3ex 0.7ex;
+    }
+    input { margin-right: 0.5ex; }
+    b { margin: 0.3ex 0 0.3ex 0; }
+    span + span { margin-left: 0.6ex; }
+    background: white;
 }
 
 .PartidaGenerada {
@@ -48,5 +79,20 @@ table {
         border: 1px solid black;
         background: white;
         text-align: center;
+        padding: 1ex 2ex 2ex 1ex;
     }
+}
+
+@oscuro: #666;
+
+.BotonOrden, .BotonDesplegar {
+    padding: 0.2ex 0.8ex;
+    margin: 0 1ex 0 0.5ex;
+    border: none;
+    display: inline-block;
+    font-weight: 900;
+    background: @oscuro;
+    color: white;
+    cursor: pointer;
+    transform: scale(0.6, 0.8);
 }
