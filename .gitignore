@@ -1,5 +1,5 @@
 /node_modules
 /tronos.db
-/config/local.json5
+/config/*
 /dist
 /.cache

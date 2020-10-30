@@ -1,5 +1,6 @@
 {
     db: 'tronos.db',
+    publicUrl: '/',
     port: 3000,
     password: 'password',
     frases: [

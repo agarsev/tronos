@@ -11,12 +11,11 @@ const frases = config.get('frases');
 
 // Logging
 morgan.token('SYSTEMD', (req, res) => {
-    if (res.statusCode < 300) return '<6>';
-    if (res.statusCode < 400) return '<5>';
+    if (res.statusCode < 400) return '<6>';
     if (res.statusCode < 500) return '<4>';
     return '<3>';
 });
-app.use(morgan(':SYSTEMD :remote-addr ":method :url" :status :response-time ms'));
+app.use(morgan(':SYSTEMD:method :url :status :response-time ms'));
 
 // API
 app.use(express.json());
@@ -49,8 +48,14 @@ app.use('/img', express.static('img'));
 const bundler = new Bundler('src/index.html', {
     autoInstall: false,
     logLevel: 0,
+    publicUrl: config.get('publicUrl'),
 });
-app.use(bundler.middleware());
+if (process.env.NODE_ENV == 'production') {
+    bundler.bundle();
+    app.use(express.static('dist'));
+} else {
+    app.use(bundler.middleware());
+}
 
 // Error handler
 app.use(function (err, req, res, next) {
@@ -63,6 +68,7 @@ app.use(function (err, req, res, next) {
     }
 });
 
-app.listen(config.get('port'), () => {
-    console.log(`Clasificación de tronos iniciada en http://localhost:${3000}`);
+const port = config.get('port');
+app.listen(port, () => {
+    console.log(`Clasificación de tronos iniciada en http://localhost:${port}`);
 });
