@@ -1,5 +1,5 @@
 import { h, render } from 'preact';
-import { useState } from 'preact/hooks';
+import { useState, useEffect } from 'preact/hooks';
 
 import { CASAS } from './comun.js';
 import { Estadisticas } from './estadisticas.js';
@@ -65,39 +65,50 @@ function App ({ partidas, jugadores }) {
         .then(setGenerada)
         .catch(e => console.log(e));
 
-    return <div>
+    const [ desplegado, setDesplegado ] = useState(false);
+    useEffect(() => {
+        const cerrar_desplegable = () => setDesplegado(false);
+        document.addEventListener("click", cerrar_desplegable);
+        return () => document.removeEventListener("click", cerrar_desplegable);
+    }, []);
+
+    return <main>
         <h1>Clasificación de partidas de Tronos</h1>
         <p>In the game of thrones, you win or you die.</p>
-        <div className="ListaPartidas"><table>
-            <CabeceroLista jugadores={js} orden={orden} setOrden={setOrden} >
-                <Filtros jugadores={jugadores}
-                    jugadores_act={jugadores_act} num_js={num_js} clasicas={clasicas}
-                    toggle_j={j => setJACT(j_act => ({ ...j_act, [j]: !j_act[j] }))}
-                    toggle_n={n => setNJS(njs => ({ ...njs, [n]: !njs[n] }))}
-                    toggle_clasicas={() => setClasicas(c => !c)}
-                    generar={generar}
-                />
-            </CabeceroLista>
-            <ListaPartidas partidas={ps} jugadores={js} />
-        </table></div>
+        <div class="ListaWrapper">
+            <div class="ListaPartidas"><table>
+                <CabeceroLista jugadores={js} orden={orden} setOrden={setOrden}
+                    desplegado={desplegado} setDesplegado={setDesplegado} />
+                <ListaPartidas partidas={ps} jugadores={js} />
+            </table></div>
+            {desplegado?<Filtros jugadores={jugadores}
+                jugadores_act={jugadores_act} num_js={num_js} clasicas={clasicas}
+                toggle_j={j => setJACT(j_act => ({ ...j_act, [j]: !j_act[j] }))}
+                toggle_n={n => setNJS(njs => ({ ...njs, [n]: !njs[n] }))}
+                toggle_clasicas={() => setClasicas(c => !c)}
+                generar={generar}
+            />:null}
+        </div>
         <h2>Victorias</h2>
         <Estadisticas partidas={ps} jugadores={js} />
         {generada?<Generada generada={generada}
             dismiss={() => setGenerada(null)} />:null}
-    </div>;
+    </main>;
 }
 
-function CabeceroLista ({ jugadores, orden, setOrden, children }) {
-
-    const [ desplegado, setDesplegado ] = useState(false);
+function CabeceroLista ({ jugadores, orden, setOrden, children,
+        desplegado, setDesplegado }) {
 
     return <thead><tr>
         <td><BotonOrden orden={orden} setOrden={setOrden} modo="fecha" /></td>
         {jugadores.map(j => <th>{j}
             <BotonOrden orden={orden} setOrden={setOrden} modo={j} />
         </th>)}
-        <td style="position: relative;">
-            <button class="BotonDesplegar" onclick={() => setDesplegado(d => !d)}>
+        <td>
+            <button class="BotonDesplegar" onclick={e => {
+                setDesplegado(!desplegado);
+                e.stopPropagation();
+            }}>
                 {desplegado?'▼':'+'}
             </button>
             {desplegado?children:null}
@@ -116,7 +127,7 @@ function Filtros ({ jugadores, jugadores_act, toggle_j, num_js, toggle_n,
 
     const num_checked = jugadores.reduce((sum, j) => sum+(jugadores_act[j]?1:0), 0);
 
-    return <div class="Filtros">
+    return <div class="Filtros" onclick={e => e.stopPropagation()} >
         <div><input type="checkbox" checked={clasicas} onclick={toggle_clasicas} />
             Clásicas
         </div><div>
@@ -141,11 +152,12 @@ function Filtros ({ jugadores, jugadores_act, toggle_j, num_js, toggle_n,
 function ListaPartidas ({ partidas, jugadores }) {
     return <tbody>
         {partidas.map(p => <tr key={p._id}>
-            <td>{p.clasica?null:p.fecha}</td>
+            <td>{p.clasica?null:<abbr title={p.fecha}>📅</abbr>}</td>
             {jugadores.map(j => p.jugadores[j]?
                 <Jugador key={j} partida={p} jugador={j} />
                 :<td></td>
             )}
+            <td></td>
         </tr>)}
     </tbody>;
 }

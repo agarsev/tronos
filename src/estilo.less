@@ -1,3 +1,7 @@
+@ppal: #7d0213;
+@suave: #e5e8f4;
+@menu: @suave;
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -6,30 +10,47 @@
 
 html {
     padding: 0 3vw;
+    background: url('../img/bg.jpg') no-repeat bottom left,
+                url('../img/header.jpg') no-repeat top left,
+                url('../img/tronos.png') no-repeat bottom right ;
+    background-size: 50vw, 50vw, 40vw;
 }
 
-h1, h2, p {
-    margin: 1.0em 0 0.6em 0;
+main {
+    background-color: rgba(255,255,255,0.8);
+    width: max-content;
+    margin: auto;
+    text-align: center;
+    padding: 1em 2em 3em 2em;
+    min-height: 100vh;
 }
+
+h1, h2, p { margin: 1.0em 0 0.6em 0; }
+
+h1, h2, b { color: @ppal; }
 
 table {
-    margin: 1.6em 0;
     border-spacing: 0;
     tfoot th, tfoot td { border-top: 1px solid black; }
-    thead th { border-bottom: 1px solid black; }
+    thead th, thead td { border-bottom: 1px solid black; }
     th:first-letter { text-transform: uppercase; }
     td { padding: 0.1ex; }
     text-align: center;
+    width: 100%;
+}
+
+.ListaWrapper {
+    position: relative;
+    margin-top: 2em;
+    margin-bottom: 1em;
 }
 
 .ListaPartidas {
     max-height: 50vh;
-    min-height: 400px;
     overflow-y: auto;
-    td:first-child {
-        font-size: 80%;
-    }
+    abbr { cursor: pointer; }
     thead tr {
+        white-space: nowrap;
         background: white;
         position: sticky;
         top: 0;
@@ -52,6 +73,7 @@ table {
 
 .Filtros {
     position: absolute;
+    top: 1.5em; right: -10%;
     padding: 1ex;
     border: 1px solid black;
     text-align: left;
@@ -62,7 +84,7 @@ table {
     input { margin-right: 0.5ex; }
     b { margin: 0.3ex 0 0.3ex 0; }
     span + span { margin-left: 0.6ex; }
-    background: white;
+    background: @menu;
 }
 
 .PartidaGenerada {
@@ -81,6 +103,7 @@ table {
         text-align: center;
         padding: 1ex 2ex 2ex 1ex;
     }
+    table + button { margin-top: 1em; }
 }
 
 @oscuro: #666;
@@ -95,4 +118,13 @@ table {
     color: white;
     cursor: pointer;
     transform: scale(0.6, 0.8);
+}
+
+.Estadisticas {
+    td {
+        padding: 0.5ex 0;
+    }
+    tbody tr:nth-child(even) {
+        background: @suave;
+    }
 }
