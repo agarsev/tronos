@@ -36,7 +36,11 @@ app.post('/api/nueva', async (req, res) => {
 });
 
 app.post('/api/generar', async (req, res) => {
-    res.send(await generar_partida(req.body.jugadores));
+    let jugadores = req.body.jugadores;
+    for (let i = 0; i<req.body.nuevos; i++) {
+        jugadores.push(`jugador ${i+1}`);
+    }
+    res.send(await generar_partida(jugadores));
 });
 
 // Front-end

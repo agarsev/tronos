@@ -57,13 +57,16 @@ function App ({ partidas, jugadores, frase }) {
 
     const js = encontrar_jugadores(ps);
 
+    const [ mensaje, setMensaje ] = useState(null);
+
     const [ generada, setGenerada ] = useState(null);
-    const generar = () => fetch("api/generar", {
+    const generar = nuevos => fetch("api/generar", {
         method: 'POST', body: JSON.stringify({
-            jugadores: jugadores.filter(j => jugadores_act[j])
+            jugadores: jugadores.filter(j => jugadores_act[j]),
+            nuevos
         }), headers: { 'Content-Type': 'application/json' }
-    }).then(r => r.json())
-        .then(setGenerada)
+    }).then(r => r.ok?r.json():r.text())
+        .then(r => typeof(r)=='object'?setGenerada(r):setMensaje(r))
         .catch(e => console.log(e));
 
     const [ desplegado, setDesplegado ] = useState(false);
@@ -75,7 +78,7 @@ function App ({ partidas, jugadores, frase }) {
 
     return <main>
         <h1>Clasificación de partidas de Tronos</h1>
-        <p>{frase}</p>
+        <p class={mensaje?"Mensaje":""}>{mensaje?mensaje:frase}</p>
         <div class="ListaWrapper">
             <div class="ListaPartidas"><table>
                 <CabeceroLista jugadores={js} orden={orden} setOrden={setOrden}
@@ -127,6 +130,7 @@ function Filtros ({ jugadores, jugadores_act, toggle_j, num_js, toggle_n,
         clasicas, toggle_clasicas, generar }) {
 
     const num_checked = jugadores.reduce((sum, j) => sum+(jugadores_act[j]?1:0), 0);
+    const [ num_nuevos, setNuevos ] = useState(0);
 
     return <div class="Filtros" onclick={e => e.stopPropagation()} >
         <div><input type="checkbox" checked={clasicas} onclick={toggle_clasicas} />
@@ -144,9 +148,11 @@ function Filtros ({ jugadores, jugadores_act, toggle_j, num_js, toggle_n,
                 onclick={() => toggle_n(n)} />
             {n}</span>)}
         </div>
-        <div>{num_checked>2 && num_checked<7?
-            <button onclick={generar}>Generar</button>
-        :null}</div>
+        <div>
+            <button onclick={() => generar(num_nuevos)}>Generar</button>
+            +<input min={3-num_checked} max={6-num_checked} size={1} type="number"
+                value={num_nuevos} onchange={e => setNuevos(e.target.value)} />
+        </div>
     </div>;
 }
 
